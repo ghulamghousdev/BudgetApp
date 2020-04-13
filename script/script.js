@@ -19,6 +19,16 @@ let budgetController = (function() {
     };   
 
 
+    let calculateTotal = function(type){
+        let sum = 0;
+        data.allItems[type].forEach(function(array){
+            sum += array.value;
+        });
+        data.totals[type] = sum;
+    }
+
+ 
+
     //Declaring an object of arrays to store all the the expenses and incomes
     let data = {
         allItems: {
@@ -28,7 +38,9 @@ let budgetController = (function() {
         totals: {
             exp:0,
             inc: 0
-        }
+        },
+        budget: 0,
+        percentage: -1
     }
 
     
@@ -41,7 +53,7 @@ let budgetController = (function() {
             //We want our ID to be unique and it will be the last number + 1 from ID Array
             if(data.allItems[type].length > 0){
                 ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
-            }
+            } 
             else{
                 ID = 0;
             }
@@ -61,13 +73,23 @@ let budgetController = (function() {
             return newItem;
         },
 
-        testing: function(){
-            console.log(data);
+        calculateBudget: function(){
+
+            //calculate total income and expenses
+            calculateTotal('exp');
+            calculateTotal('inc');
+
+            //calculate the budget : income-expenses
+            data.budget = data.totals.inc - data.totals.exp;
+
+            //calculate percentage of income that we spent
+
         }
 
 
     };
 })(); 
+
 
 
 
@@ -79,31 +101,68 @@ let UIController = (function() {
 
     //This object is declared because whenever we are going to change class names we don't need 
     //to change all of the name manually
-    let DOMstring = {
+    let DOMstrings = {
         inputType: '.add__type',
         inputDescription: '.add__description',
         inputValue: '.add__value',
-        inputBtn: '.add__btn'
+        inputBtn: '.add__btn',
+        classSelectInc: '.income__list',
+        classSelectExp: '.expense__list'
     };
 
     //This object is used to get input from UI
     return {
         getInput: function() {
             return{
-                type : document.querySelector(DOMstring.inputType).value, 
-                description : document.querySelector(DOMstring.inputDescription).value,
-                value : document.querySelector(DOMstring.inputValue).value
+                type : document.querySelector(DOMstrings.inputType).value, 
+                description : document.querySelector(DOMstrings.inputDescription).value,
+                value : parseFloat(document.querySelector(DOMstrings.inputValue).value)
             };
         },
 
+        addItemToUI: function(obj, type){
+            var newHtml,replacedHtml,classSelect;
+            // We need to create a Plaeholder Html
+
+            if(type === 'inc') {
+                classSelect = DOMstrings.classSelectInc;
+                newHtml = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+            } else if (type === 'exp') {
+                classSelect = DOMstrings.classSelectExp;
+                newHtml = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+            }
+            // Changing the placeholder to the data received
+
+            replacedHtml = newHtml.replace('%id%', obj.id);
+            replacedHtml = replacedHtml.replace('%description%',obj.description);
+            replacedHtml = replacedHtml.replace('%value%',obj.value);
+
+            // Adding the html in the UI
+            document.querySelector(classSelect).insertAdjacentHTML('beforeend', replacedHtml);
+        },
+
+        clearInputFields: function (){
+            let inputFields;
+            let fieldsArray;
+            
+            inputFields = document.querySelectorAll(DOMstrings.inputDescription + ', '+ DOMstrings.inputValue);
+            
+            fieldsArray = Array.prototype.slice.call(inputFields);
+            
+            fieldsArray.forEach(function(current, index, array){
+                current.value = "";
+            });
+
+            fieldsArray[0].focus();
+        },
+
         getDOMstrings: function() {
-            return DOMstring;
+            return DOMstrings;
         }
         
     }; 
+
 })();
-
-
 
 let controller = (function(budgetController, UIController) {
 
@@ -125,6 +184,19 @@ let controller = (function(budgetController, UIController) {
     })
 }
    
+    //To update budget
+    let updateBudget = function(){
+        
+        //calculate budget
+         
+        
+        //return the budget
+
+
+        //Display the budget on UI
+
+
+    };
 
     //This function holds all the functionality which we want to 
     //perform when add button is pressed 
@@ -132,11 +204,22 @@ let controller = (function(budgetController, UIController) {
 
         //getting data from input fields
         let input = UIController.getInput();
+       
+        if(inputDescription !=="" && !isNaN(input.value) && input.value > 0){
+            //Adding item to the budget controller
+            let newItem = budgetController.addItem(input.type, input.description, input.value) 
 
-        //Adding item to the budget controller
-        budgetController.addItem(input.type, input.description, input.value) 
+            //Adding item to UI
+            UIController.addItemToUI(newItem, input.type);
 
-    }
+            //Clear the input fields
+            UIController.clearInputFields();
+
+            //Updates the budget
+            updateBudget();
+        }
+
+    };
 
 
     //This object will hold the init function which will be called when our application runs
