@@ -122,7 +122,12 @@ let UIController = (function() {
         inputValue: '.add__value',
         inputBtn: '.add__btn',
         classSelectInc: '.income__list',
-        classSelectExp: '.expense__list'
+        classSelectExp: '.expense__list',
+        budgetLabel: '.budget__value',
+        incomeLabel: '.budget__income--value',
+        expensesLabel: '.budget__expenses--value',
+        percentageLabel: '.budget__expenses--percentage',
+        classSelectContainer: '.container'
     };
 
     //This object is used to get input from UI
@@ -173,6 +178,21 @@ let UIController = (function() {
 
         getDOMstrings: function() {
             return DOMstrings;
+        },
+
+        //Function to display total budget, expenses and income on UI
+        displayBudgetOnUI : function(object){
+
+            document.querySelector(DOMstrings.budgetLabel).textContent = object.budget;
+            document.querySelector(DOMstrings.incomeLabel).textContent = '+ '+object.totalIncome;
+            document.querySelector(DOMstrings.expensesLabel).textContent ='- '+ object.totalExpenses;
+            if(object.percentage > 0){
+                document.querySelector(DOMstrings.percentageLabel).textContent = object.percentage+' %';
+            }
+            else{
+                document.querySelector(DOMstrings.percentageLabel).textContent = '---';
+            }
+
         }
         
     }; 
@@ -196,7 +216,11 @@ let controller = (function(budgetController, UIController) {
         if(event.keyCode === 13 || event.which === 13){
             controlAddItem(); 
         } 
-    })
+    });
+
+
+    //adding event to delete an item from expenses or income
+    document.querySelector(DOM.classSelectContainer).addEventListener('click', controlDeleteItem);
 }
    
     //To update budget
@@ -209,7 +233,7 @@ let controller = (function(budgetController, UIController) {
         let budget = budgetController.getBudget();
  
         //Display the budget on UI
-        console.log(budget);
+        UIController.displayBudgetOnUI(budget);
 
     };
 
@@ -236,10 +260,22 @@ let controller = (function(budgetController, UIController) {
 
     };
 
+    let controlDeleteItem = function(event){
+         
+        let itemID = event.target.parentNode.parentNode.parentNode.parentNode
+    };
+
+
 
     //This object will hold the init function which will be called when our application runs
      return{
-         init: function(){
+         init: function(){        
+             UIController.displayBudgetOnUI({
+                budget: 0,
+                totalIncome: 0,
+                totalExpenses: 0,
+                percentage: '-1 %'
+            });
              setupEventListeners();
          }
      }
