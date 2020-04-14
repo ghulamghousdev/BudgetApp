@@ -79,11 +79,26 @@ let budgetController = (function() {
             calculateTotal('exp');
             calculateTotal('inc');
 
+
             //calculate the budget : income-expenses
             data.budget = data.totals.inc - data.totals.exp;
-
+            
             //calculate percentage of income that we spent
+            if(data.totals.inc > 0){
+               data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
+            }
+            
+        },
 
+        //This will return the budget 
+        getBudget: function(){
+
+            return{
+                budget: data.budget,
+                totalIncome: data.totals.inc,
+                totalExpenses: data.totals.exp,
+                percentage: data.percentage
+            }
         }
 
 
@@ -188,13 +203,13 @@ let controller = (function(budgetController, UIController) {
     let updateBudget = function(){
         
         //calculate budget
-         
+         budgetController.calculateBudget();
         
         //return the budget
-
-
+        let budget = budgetController.getBudget();
+ 
         //Display the budget on UI
-
+        console.log(budget);
 
     };
 
@@ -205,7 +220,7 @@ let controller = (function(budgetController, UIController) {
         //getting data from input fields
         let input = UIController.getInput();
        
-        if(inputDescription !=="" && !isNaN(input.value) && input.value > 0){
+        if(input.Description !=="" && !isNaN(input.value) && input.value > 0){
             //Adding item to the budget controller
             let newItem = budgetController.addItem(input.type, input.description, input.value) 
 
