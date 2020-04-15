@@ -8,7 +8,21 @@ let budgetController = (function() {
         this.id = id;
         this.description = description;
         this.value = value;
+        this.percentage = -1;
     };
+
+    Expense.prototype.calcPercentages = function(totalIncome){
+        if(totalIncome > 0){
+            this.percentage = Math.round((this.value / totalIncome) * 100);
+        }
+        else{
+            this.percentage = -1;
+        }
+    };
+
+    Expense.prototype.getPercentage = function(){
+        return this.percentage;
+    }
 
 
     //Function constructor for incomes
@@ -113,6 +127,21 @@ let budgetController = (function() {
             
         },
 
+        //Function to calculate percentages
+        calculatePercentages: function(){
+
+            data.allItems.exp.forEach(function(currentVar){
+                currentVar.calcPercentages(data.totals.inc); 
+            })
+        },
+
+        getPercentages: function(){
+            let allExpPercentages = data.allItems.exp.map(function(currentVar){
+                return currentVar.getPercentage();
+            });
+            return allExpPercentages;
+        },
+
         //This will return the budget 
         getBudget: function(){
 
@@ -150,7 +179,8 @@ let UIController = (function() {
         incomeLabel: '.budget__income--value',
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
-        classSelectContainer: '.container'
+        classSelectContainer: '.container',
+        expensesPercentageLabel: '.item__percentage'
     };
 
     //This object is used to get input from UI
@@ -225,8 +255,27 @@ let UIController = (function() {
                 document.querySelector(DOMstrings.percentageLabel).textContent = '---';
             }
 
+        },
+
+        //Function to display Percentages on UI
+        displayPercentagesOnUI: function(percentages){
+            let percentageFields = document.querySelectorAll(DOMstrings.expensesPercentageLabel);
+
+            let nodeListForEach = function(nodeList, callback){
+                for(let i = 0; i < nodeList.length; i++){
+                    callback(nodeList[i], i);
+                }
+            };
+
+            nodeListForEach(percentageFields, function(current, index){
+                if(percentages[index] > 0){
+                    current.textContent = percentages[index]+'%';
+                }
+                else{
+                    current.textContent = '---';
+                }
+            });
         }
-        
     }; 
 
 })();
@@ -235,10 +284,8 @@ let controller = (function(budgetController, UIController) {
 
     //In this function we'll handle our all event listeners
     let setupEventListeners = function() {
-
     //We are using UIController function of DOMstring 
     var DOM = UIController.getDOMstrings(); 
-    
     //event to get input when add button is clicked
     document.querySelector(DOM.inputBtn).addEventListener('click', controlAddItem);
    
@@ -249,11 +296,21 @@ let controller = (function(budgetController, UIController) {
             controlAddItem(); 
         } 
     });
-
-
     //adding event to delete an item from expenses or income
     document.querySelector(DOM.classSelectContainer).addEventListener('click', controlDeleteItem);
 }
+
+    let updatePercentages= function(){
+        
+        //Calculate percentages
+        budgetController.calculatePercentages();
+        
+        //Get percentages from the budget controller
+        let percentages = budgetController.getPercentages();
+
+        //Updating  the new percentages on UI 
+        UIController.displayPercentagesOnUI(percentages);
+    }
    
     //To update budget
     let updateBudget = function(){
@@ -288,6 +345,9 @@ let controller = (function(budgetController, UIController) {
 
             //Updates the budget
             updateBudget();
+
+            //Updating Percentages
+            updatePercentages();
         }
 
     };
@@ -312,6 +372,9 @@ let controller = (function(budgetController, UIController) {
 
             //Update and show the new totals
             updateBudget();
+
+            //Update Percentages
+            updatePercentages();
         }
     };
 
