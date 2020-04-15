@@ -73,6 +73,29 @@ let budgetController = (function() {
             return newItem;
         },
 
+
+        //Function to delete an item from our data 
+        deleteItem: function(type, id){
+
+            let arrayOfIDs, indexOfItem;
+
+            //Getting array of ID'S
+            arrayOfIDs = data.allItems[type].map(function(current){
+                return current.id;
+            });
+
+            //Getting index of item to be deleted
+            indexOfItem = arrayOfIDs.indexOf(id);
+
+            //Deleting the item using splice method if item exists
+             if(indexOfItem !== -1){
+                 data.allItems[type].splice(indexOfItem, 1);
+             }
+
+             
+        },
+
+
         calculateBudget: function(){
 
             //calculate total income and expenses
@@ -146,10 +169,10 @@ let UIController = (function() {
 
             if(type === 'inc') {
                 classSelect = DOMstrings.classSelectInc;
-                newHtml = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                newHtml = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             } else if (type === 'exp') {
                 classSelect = DOMstrings.classSelectExp;
-                newHtml = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                newHtml = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }
             // Changing the placeholder to the data received
 
@@ -161,6 +184,15 @@ let UIController = (function() {
             document.querySelector(classSelect).insertAdjacentHTML('beforeend', replacedHtml);
         },
 
+
+        //Deleting the item from UI
+        deleteItemFromUI: function(selectorID){
+            let selectElement = document.getElementById(selectorID);
+            selectElement.parentNode.removeChild(selectElement);
+        },
+
+        
+        //Clearing all input boxes
         clearInputFields: function (){
             let inputFields;
             let fieldsArray;
@@ -261,8 +293,26 @@ let controller = (function(budgetController, UIController) {
     };
 
     let controlDeleteItem = function(event){
-         
-        let itemID = event.target.parentNode.parentNode.parentNode.parentNode
+        let itemID, splitID, ID, type;
+
+        itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+        
+        if(itemID){
+
+            //Splitting the ID of each container so we can have type of that container
+            splitID = itemID.split('-');
+            type = splitID[0];
+            ID =parseInt(splitID[1]);
+
+            //Delete the item from the data structure
+            budgetController.deleteItem(type, ID);
+
+            //Delete the item from the UI
+            deleteItemFromUI(itemID);
+
+            //Update and show the new totals
+            updateBudget();
+        }
     };
 
 
