@@ -180,7 +180,8 @@ let UIController = (function() {
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
         classSelectContainer: '.container',
-        expensesPercentageLabel: '.item__percentage'
+        expensesPercentageLabel: '.item__percentage',
+        dateLabel: '.budget__title--month'
     };
 
     let formatNumber = function(num, type){
@@ -197,6 +198,13 @@ let UIController = (function() {
             int = int.substr(0, int.length - 5) + ',' + int.substr(int.length - 5, int.length - 5) + ',' + int.substr(int.length - 3, int.length);
         }
         return (type === 'exp' ? '-' : '+') + ' ' + int +'.' + dec;
+    };
+
+
+    let nodeListForEach = function(nodeList, callback){
+        for(let i = 0; i < nodeList.length; i++){
+            callback(nodeList[i], i);
+        }
     };
 
     //This object is used to get input from UI
@@ -279,12 +287,6 @@ let UIController = (function() {
         displayPercentagesOnUI: function(percentages){
             let percentageFields = document.querySelectorAll(DOMstrings.expensesPercentageLabel);
 
-            let nodeListForEach = function(nodeList, callback){
-                for(let i = 0; i < nodeList.length; i++){
-                    callback(nodeList[i], i);
-                }
-            };
-
             nodeListForEach(percentageFields, function(current, index){
                 if(percentages[index] > 0){
                     current.textContent = percentages[index]+'%';
@@ -293,6 +295,28 @@ let UIController = (function() {
                     current.textContent = '---';
                 }
             });
+        },
+
+        //Function to display current month and year
+        displayMonth: function(){
+            let now = new Date();
+            let months = ['January', 'February', 'March', 'April', 'May','June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            let month = now.getMonth();
+            let year = now.getFullYear();
+            document.querySelector(DOMstrings.dateLabel).textContent =months[month] + ' ' + year;
+        },
+
+        //Function to control focus colors of our input boxes
+        changedType: function(){
+            let fields = document.querySelectorAll(
+                DOMstrings.inputType + ',' + DOMstrings.inputDescription + ',' + DOMstrings.inputValue
+            );
+
+            nodeListForEach(fields, function(current){
+                current.classList.toggle('red-focus');
+            });
+
+            document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
         }
 
     }; 
@@ -317,6 +341,8 @@ let controller = (function(budgetController, UIController) {
     });
     //adding event to delete an item from expenses or income
     document.querySelector(DOM.classSelectContainer).addEventListener('click', controlDeleteItem);
+
+    document.querySelector(DOM.inputType).addEventListener('change', UIController.changedType);
 }
 
     let updatePercentages= function(){
@@ -401,7 +427,8 @@ let controller = (function(budgetController, UIController) {
 
     //This object will hold the init function which will be called when our application runs
      return{
-         init: function(){        
+         init: function(){  
+             UIController.displayMonth();      
              UIController.displayBudgetOnUI({
                 budget: 0,
                 totalIncome: 0,
