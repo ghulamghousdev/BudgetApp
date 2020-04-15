@@ -183,6 +183,22 @@ let UIController = (function() {
         expensesPercentageLabel: '.item__percentage'
     };
 
+    let formatNumber = function(num, type){
+        let numSplit, int, dec;
+        num = Math.abs(num);
+        num = num.toFixed(2)
+        numSplit = num.split('.');
+        int = numSplit[0];
+        dec = numSplit[1];
+        if(int.length > 3 && int.length < 6){
+            int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, int.length);
+        }
+        else if(int.length > 5 && int.length < 8){
+            int = int.substr(0, int.length - 5) + ',' + int.substr(int.length - 5, int.length - 5) + ',' + int.substr(int.length - 3, int.length);
+        }
+        return (type === 'exp' ? '-' : '+') + ' ' + int +'.' + dec;
+    };
+
     //This object is used to get input from UI
     return {
         getInput: function() {
@@ -202,13 +218,13 @@ let UIController = (function() {
                 newHtml = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             } else if (type === 'exp') {
                 classSelect = DOMstrings.classSelectExp;
-                newHtml = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                newHtml = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }
             // Changing the placeholder to the data received
 
             replacedHtml = newHtml.replace('%id%', obj.id);
             replacedHtml = replacedHtml.replace('%description%',obj.description);
-            replacedHtml = replacedHtml.replace('%value%',obj.value);
+            replacedHtml = replacedHtml.replace('%value%',formatNumber(obj.value, type));
 
             // Adding the html in the UI
             document.querySelector(classSelect).insertAdjacentHTML('beforeend', replacedHtml);
@@ -245,9 +261,11 @@ let UIController = (function() {
         //Function to display total budget, expenses and income on UI
         displayBudgetOnUI : function(object){
 
-            document.querySelector(DOMstrings.budgetLabel).textContent = object.budget;
-            document.querySelector(DOMstrings.incomeLabel).textContent = '+ '+object.totalIncome;
-            document.querySelector(DOMstrings.expensesLabel).textContent ='- '+ object.totalExpenses;
+            let type;
+            object.budget > 0 ? type = 'inc' : type = 'exp';
+            document.querySelector(DOMstrings.budgetLabel).textContent = formatNumber(object.budget, type);
+            document.querySelector(DOMstrings.incomeLabel).textContent = formatNumber(object.totalIncome, type);
+            document.querySelector(DOMstrings.expensesLabel).textContent =formatNumber(object.totalExpenses, type);
             if(object.percentage > 0){
                 document.querySelector(DOMstrings.percentageLabel).textContent = object.percentage+' %';
             }
@@ -276,6 +294,7 @@ let UIController = (function() {
                 }
             });
         }
+
     }; 
 
 })();
