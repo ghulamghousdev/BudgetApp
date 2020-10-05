@@ -1,7 +1,7 @@
 
 # Budget App
 
-This is a web application for beginner cooks and kitchen hobbyists to search and save their favorite recipes. 
+This is a budgeting app that calculates a basic budget based on a list of income and expenses. 
 
 ## Getting Started
 
