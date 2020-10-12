@@ -4,13 +4,20 @@
         <meta charset="UTF-8">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600" rel="stylesheet" type="text/css">
         <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
-        <link type="text/css" rel="stylesheet" href="./style//style.css">
+        <link type="text/css" rel="stylesheet" href="./style/style.css">
         <title>Budget App</title>
     </head>
-    <body>
+    <body class="body">
         
         <div class="top">
             <div class="budget">
+                <div class="theme__toggle">
+                    <p>Toggle Darkmode</p>
+                    <label class="switch">
+                        <input type="checkbox" class="darkmode__toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <div class="budget__title">
                     Available Budget in <span class="budget__title--month">%Month%</span>:
                 </div>
