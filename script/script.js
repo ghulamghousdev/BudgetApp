@@ -181,7 +181,9 @@ let UIController = (function() {
         percentageLabel: '.budget__expenses--percentage',
         classSelectContainer: '.container',
         expensesPercentageLabel: '.item__percentage',
-        dateLabel: '.budget__title--month'
+        dateLabel: '.budget__title--month',
+        darkModeToggle: '.darkmode__toggle',
+        body: '.body'
     };
 
     let formatNumber = function(num, type){
@@ -343,6 +345,14 @@ let controller = (function(budgetController, UIController) {
     document.querySelector(DOM.classSelectContainer).addEventListener('click', controlDeleteItem);
 
     document.querySelector(DOM.inputType).addEventListener('change', UIController.changedType);
+
+    document.querySelector(DOM.darkModeToggle).addEventListener('change', ()=>{
+        if(document.querySelector(DOM.darkModeToggle).checked){
+            document.querySelector(DOM.body).classList.add("dark");
+        } else {
+            document.querySelector(DOM.body).classList.remove("dark");
+        }
+   });
 }
 
     let updatePercentages= function(){
@@ -443,3 +453,5 @@ let controller = (function(budgetController, UIController) {
 })(budgetController,UIController);
 
 controller.init();
+
+
