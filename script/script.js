@@ -101,6 +101,7 @@ let budgetController = (function() {
             //Getting index of item to be deleted
             indexOfItem = arrayOfIDs.indexOf(id);
 
+
             //Deleting the item using splice method if item exists
              if(indexOfItem !== -1){
                  data.allItems[type].splice(indexOfItem, 1);
@@ -423,7 +424,7 @@ let controller = (function(budgetController, UIController) {
             budgetController.deleteItem(type, ID);
 
             //Delete the item from the UI
-            deleteItemFromUI(itemID);
+            UIController.deleteItemFromUI(itemID);
 
             //Update and show the new totals
             updateBudget();
