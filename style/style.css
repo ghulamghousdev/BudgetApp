@@ -46,6 +46,8 @@ body {
 }
 
 .budget {
+  background: rgba(0,0,0,0.3);
+  padding: 1rem;
   position: absolute;
   width: 350px;
   top: 50%;
